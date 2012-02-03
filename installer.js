@@ -2,7 +2,7 @@
 // File:	installer.js (automaticaly installs selected applications) 
 // Author:	OlegL
 // Date:	2012.01.18
-// Version:	0.01.0000
+// Version:	0.01.0004
 //
 // This program is free software. It comes without any warranty, to
 // the extent permitted by applicable law. You can redistribute it
@@ -289,7 +289,7 @@ function openIE(writeLogBuffer){
 		if (GeneralOptions.Exists("title")) 		sTitle=GeneralOptions.Item("title");
 		if (GeneralOptions.Exists("wallpaper")) {
 			var wallpaperUrl=GetPath().replace(/\\/g,"/")+"/"+GeneralOptions.Item("wallpaper").replace(/\\/,"/");
-			wallpaper=" style=\" background: url(file://"+encodeURI(wallpaperUrl)+") no-repeat;\" ";
+			wallpaper=" style=\" background: url('file://"+wallpaperUrl+"') no-repeat;\" ";
 		}
 	
 		with (Document){
