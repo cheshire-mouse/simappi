@@ -2,7 +2,7 @@
 // File:	installer.js (automaticaly installs selected applications) 
 // Author:	OlegL
 // Date:	2012.01.18
-// Version:	0.01.0004
+// Version:	0.01.0005
 //
 // This program is free software. It comes without any warranty, to
 // the extent permitted by applicable law. You can redistribute it
@@ -340,8 +340,11 @@ function tryCheckAppDeps(appid){
 	var arDeps=(new VBArray(deps.Keys())).toArray();
 	
 	for(var i in arDeps){
-		oIE.Document.all(arDeps[i]).checked=true;
-		FormDisableConflicts(arDeps[i]);
+		var checked=FormIsAppChecked(arDeps[i]);
+		if (!checked) {
+			oIE.Document.all(arDeps[i]).checked=true;
+			FormDisableConflicts(arDeps[i]);
+		}
 	}
 	return true;
 }
@@ -361,10 +364,12 @@ function FormEnableConflicts(appid){
 
 //disable checkboxes for conflicting applications 
 function FormDisableConflicts(appid){
+	log("disable conflicts "+appid);
 	if (!dConflicts.Exists(appid)) return;
 	for (var i in Applications) {
 		var appid2=Applications[i].Item("id");
 		if (dConflicts.Item(appid).Exists(appid2)){
+			log("disable conflict: "+appid+" "+appid2);
 			oIE.Document.all(appid2).disabled=true;
 			arDisablesCount[appid2]++;
 		}
@@ -374,7 +379,7 @@ function FormDisableConflicts(appid){
 //get list of required apps for appid
 // if there are conflicts, stops searching and returns false
 function getDeps(dDeps,appid){
-	//log("getDeps "+appid+" "+(new VBArray(dDeps.Keys())).toArray());
+	log("getDeps start "+appid+": "+(new VBArray(dDeps.Keys())).toArray());
 	var result=true;
 	if (dDeps.Exists(appid)) return result;
 	var app=dApps.Item(appid);
@@ -388,6 +393,7 @@ function getDeps(dDeps,appid){
 		if (!result) break;
 		else if (!arConditionsUnchecked[req] && !dDeps.Exists(req)) dDeps.Add(req,null);
 	}	
+	log("getDeps finish "+appid+": "+(new VBArray(dDeps.Keys())).toArray());
 	return result;
 }
 
@@ -421,6 +427,7 @@ function FormApplyTemplate(template){
 		var appid=Applications[app].Item("id");
 		oIE.Document.all(appid).checked=false;
 		oIE.Document.all(appid).disabled=false;
+		arDisablesCount[appid]=0;
 	}
 	
 	for (id in checked) dChecked.Add(checked[id],true);
@@ -433,9 +440,10 @@ function FormApplyTemplate(template){
 	for (app in Applications){
 		var appid=Applications[app].Item("id");
 		var disabled=oIE.Document.all(appid).disabled;
-		if(dChecked.Exists(appid) && !disabled && tryCheckAppDeps(appid)){
-			FormDisableConflicts(appid);
+		var checked=FormIsAppChecked(appid);
+		if(dChecked.Exists(appid) && !disabled && !checked && tryCheckAppDeps(appid)){
 			oIE.Document.all(appid).checked=true;
+			FormDisableConflicts(appid);
 		}
 	}
 }
