@@ -2,7 +2,7 @@
 // File:	installer.js (automaticaly installs selected applications) 
 // Author:	OlegL
 // Date:	2012.01.18
-// Version:	0.01.0005
+// Version:	0.01.0006
 //
 // This program is free software. It comes without any warranty, to
 // the extent permitted by applicable law. You can redistribute it
@@ -23,6 +23,7 @@ var dInvDeps=WScript.CreateObject("Scripting.Dictionary"); // dInvDeps(id1).exis
 var arConditionsChecked=new Array();
 var arConditionsUnchecked=new Array();
 var arDisablesCount=new Array(); // increase by 1 each time app is disabled, and decrease, when enabled
+var OSVer=GetOSVer();
 var optionType=WScript.CreateObject("Scripting.Dictionary");
 optionType.Add("command","array");	//array = multiple options with similar name
 optionType.Add("checked","list");	//list  = option with comma separated values
@@ -46,6 +47,7 @@ var log2IEstring="";
 
 
 log("START installer");
+log("OS: "+OSVer);
 
 ReadOptions(GetPath()+"\\installer.cfg");
 flLog=FSO.OpenTextFile(ReplaceVariables(GeneralOptions.Item("log")),8,1);
@@ -582,10 +584,21 @@ function GetPath()
 
 //returns path to the default user profile
 function GetDefaultUserProfile(){
-	var profpath=WshShell.RegRead("HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\ProfilesDirectory");
-	var profdir=WshShell.RegRead("HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\DefaultUserProfile");
+	if (OSVer > 5.1) {
+		var profdir=WshShell.RegRead("HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\Default");
+		return WshShell.ExpandEnvironmentStrings(profdir);
+	}
+	else {
+		var profpath=WshShell.RegRead("HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\ProfilesDirectory");
+		var profdir=WshShell.RegRead("HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\DefaultUserProfile");
+		return WshShell.ExpandEnvironmentStrings(profpath+"\\"+profdir);
+	}
+}
 
-	return WshShell.ExpandEnvironmentStrings(profpath+"\\"+profdir);
+//get operation system version
+function GetOSVer(){
+	var regVer=WshShell.RegRead("HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\CurrentVersion");
+	return parseFloat(regVer);
 }
 
 //add leading zeroes to a number
