@@ -2,8 +2,8 @@
 // File:	installer.js (automaticaly installs selected applications) 
 // Author:	OlegL
 // Homepage:	https://sourceforge.net/projects/simappi/
-// Date:	2012.01.18
-// Version:	0.01.0006
+// Date:	2012.02.07
+// Version:	0.01.0008
 //
 // This program is free software. It comes without any warranty, to
 // the extent permitted by applicable law. You can redistribute it
@@ -480,7 +480,13 @@ function CheckConditions(){
 			if (!app.Exists(opt)) res=false;
 			else {
 				log(app.Item("id")+", checking condition: "+app.Item(opt));
-				var retCode=WshShell.Run(app.Item(opt),4,true);
+				var retCode=0;
+				try{
+					retCode=WshShell.Run(app.Item(opt),4,true);
+				}
+				catch(e){
+					log("ERROR!!! ("+e.number+") "+e.message);
+				}
 				log("condition returned: "+retCode+" ("+(retCode!=0)+")" );
 				res=(retCode!=0);
 			}
