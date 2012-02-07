@@ -99,3 +99,9 @@ http://sam.zoy.org/wtfpl/COPYING ).
 
 Если в двух словах: делайте с ней все, что хотите, совершенно безвозмездно, 
 т.е. даром.
+
+КОНТАКТЫ
+
+Страница проекта 
+	https://sourceforge.net/projects/simappi/
+	

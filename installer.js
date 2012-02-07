@@ -1,6 +1,7 @@
 //************************************************
 // File:	installer.js (automaticaly installs selected applications) 
 // Author:	OlegL
+// Homepage:	https://sourceforge.net/projects/simappi/
 // Date:	2012.01.18
 // Version:	0.01.0006
 //
