@@ -3,7 +3,7 @@
 // Author:	OlegL
 // Homepage:	https://sourceforge.net/projects/simappi/
 // Date:	2012.02.07
-// Version:	0.01.0008
+// Version:	0.01.0009
 //
 // This program is free software. It comes without any warranty, to
 // the extent permitted by applicable law. You can redistribute it
@@ -38,7 +38,6 @@ GeneralOptions.Add("window_width","800");
 GeneralOptions.Add("window_height","600");
 GeneralOptions.Add("charset","UTF-8");
 GeneralOptions.Add("log","%temp%\\installer.log");
-GeneralOptions.Add("default_template","default_template");
 var logstring="";
 var flLog=null;
 var isTempLogFlushed=false;
@@ -167,11 +166,25 @@ function ReadOptions(optionsPath){
 
 //check options for errors
 function CheckOptions(){
-	//check apps without id
+	//we must have at least one application and one template
+	if (Applications.length==0) FatalError("Error! No application section found!")
+	if (Templates.length==0) FatalError("Error! No template section found!")
+	//check apps and templates without id
 	for (var i in Applications){
-		
 		if (!Applications[i].Exists("id")) FatalError("Error! Application without id ("+i+")!");
 	}
+	for (var i in Templates){
+		if (!Templates[i].Exists("id")) FatalError("Error! Template without id ("+i+")!");
+	}
+	//if there is no default template, choose the first one as default
+	if (!GeneralOptions.Exists("default_template"))	{
+		GeneralOptions.Add("default_template",Templates[0].Item("id"));
+		log("template "+Templates[0].Item("id")+" is now default");
+	}
+	//check the existence of the default template
+	var default_template=GeneralOptions.Item("default_template");
+	if (!dTempl.Exists(default_template)) FatalError("Error! Default template ("+default_template+") doesnt exist!")
+
 }
 
 //replace variables in the all commands with their values(variable is something surrounded with % signs)
@@ -267,8 +280,10 @@ function DrawForm(){
 			writeln("</body></html>") 
 			all.but.onclick = FormSubmit;
 			all.template.onchange = FormTemplateChange;
+			var default_template=GeneralOptions.Item("default_template");
+			all.template.value=default_template;
+			FormApplyTemplate(dTempl.Item(default_template));
 		}
-		FormApplyTemplate(Templates[0]);
 	}
 	
 	
