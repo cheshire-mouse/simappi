@@ -3,7 +3,7 @@
 // Author:	OlegL
 // Homepage:	https://sourceforge.net/projects/simappi/
 // Date:	2012.02.07
-// Version:	0.01.0009
+// Version:	0.01.0010
 //
 // This program is free software. It comes without any warranty, to
 // the extent permitted by applicable law. You can redistribute it
@@ -50,7 +50,12 @@ log("START installer");
 log("OS: "+OSVer);
 
 ReadOptions(GetPath()+"\\installer.cfg");
-flLog=FSO.OpenTextFile(ReplaceVariables(GeneralOptions.Item("log")),8,1);
+try{
+	flLog=FSO.OpenTextFile(ReplaceVariables(GeneralOptions.Item("log")),8,1);
+}
+catch(e){
+	FatalError("Error! Can't open log file \""+GeneralOptions.Item("log")+"\"\n["+e.name+" "+e.message+"]");
+}
 ReplaceAllVariables();
 CheckConditions();
 
@@ -562,7 +567,7 @@ function log(msg){
 	}	
 
 	if (isTempLogFlushed) flLog.WriteLine(str);
-	else logstring+=str+"\n";
+	else logstring+=str+"\r\n";
 }
 
 function log2IE(msgstr,msgcolor){
@@ -606,15 +611,18 @@ function GetPath()
 
 //returns path to the default user profile
 function GetDefaultUserProfile(){
-	if (OSVer > 5.1) {
+	//Vista(haven't tested),7,2008
+	if (OSVer >= 6.0) {
 		var profdir=WshShell.RegRead("HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\Default");
 		return WshShell.ExpandEnvironmentStrings(profdir);
 	}
-	else {
+	//XP, 2003
+	else if (OSVer >= 5.1) {
 		var profpath=WshShell.RegRead("HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\ProfilesDirectory");
 		var profdir=WshShell.RegRead("HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\DefaultUserProfile");
 		return WshShell.ExpandEnvironmentStrings(profpath+"\\"+profdir);
 	}
+	return "";
 }
 
 //get operation system version
