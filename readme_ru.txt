@@ -89,6 +89,9 @@ Simple application installer
 того, можно использовать вот такие переменные
 	%root%			путь к папке со скриптом
 	%defaultuserprofile%	путь к папке с профилем по-умолчанию
+	%defaultuserappdata%	путь к папке Application Data профил€ по-умолчанию
+	%programfiles_x86%	путь к 32-х битным программам на 64-х битной ќ— 
+				(дл€ 32-х битной эта переменна€ равна %ProgramFiles%)
 
 
 Ћ»÷≈Ќ«»я

@@ -90,6 +90,9 @@ variables of the operating system, such as% temp%,% userprofile%, etc.
 You can also use variables 
 	%root%			path to the script.
 	%defaultuserprofile%	path to the default user profile
+	%defaultuserappdata%	path to the Application Data folder for default user profile
+	%programfiles_x86%	path to the x86 Program Files for amd64 OS 
+				(for x86 OS this variable is the same as %ProgramFiles%)
 
 LICENSE
 
