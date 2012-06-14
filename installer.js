@@ -2,8 +2,8 @@
 // File:	installer.js (automaticaly installs selected applications) 
 // Author:	OlegL
 // Homepage:	https://sourceforge.net/projects/simappi/
-// Date:	2012.02.07
-// Version:	0.01.0010
+// Date:	2012.06.14
+// Version:	0.01.0011
 //
 // This program is free software. It comes without any warranty, to
 // the extent permitted by applicable law. You can redistribute it
@@ -25,6 +25,7 @@ var arConditionsChecked=new Array();
 var arConditionsUnchecked=new Array();
 var arDisablesCount=new Array(); // increase by 1 each time app is disabled, and decrease, when enabled
 var OSVer=GetOSVer();
+var CPUArchitecture=GetProcessorArchitecture();
 var optionType=WScript.CreateObject("Scripting.Dictionary");
 optionType.Add("command","array");	//array = multiple options with similar name
 optionType.Add("checked","list");	//list  = option with comma separated values
@@ -33,6 +34,10 @@ optionType.Add("conflicts","list");	//list  = option with comma separated values
 var dVariables=WScript.CreateObject("Scripting.Dictionary");
 dVariables.Add("root",GetPath());
 dVariables.Add("defaultuserprofile",GetDefaultUserProfile());
+dVariables.Add("defaultuserappdata",GetDefaultUserAppdata());
+if (CPUArchitecture == "AMD64") dVariables.Add("programfiles_x86","%ProgramFiles(x86)%");
+else dVariables.Add("programfiles_x86","%ProgramFiles%");
+
 
 GeneralOptions.Add("window_width","800");
 GeneralOptions.Add("window_height","600");
@@ -45,9 +50,9 @@ var log2IEstring="";
 
 //********************************************************
 
-
 log("START installer");
 log("OS: "+OSVer);
+log("Processor architecture: "+CPUArchitecture);
 
 ReadOptions(GetPath()+"\\installer.cfg");
 try{
@@ -544,8 +549,8 @@ function Install(){
 		}
 		if (IEclosed) openIE(true);
 	}
-	log2IE("finished install process");
 	if (errors>0) log2IE("WARNING! Some commands were finished with error!","red");
+	log2IE("FINISHED INSALLATION PROCESS","blue");
 
 	
 }
@@ -609,6 +614,21 @@ function GetPath()
     return path;
 }
 
+//returns path to the default user application data 
+function GetDefaultUserAppdata(){
+	// need to find better solution
+	//Vista(haven't tested),7,2008
+	if (OSVer >= 6.0) {
+		return GetDefaultUserProfile()+"\\AppData\\Roaming";
+	}
+	//XP, 2003
+	else if (OSVer >= 5.1) {
+		return GetDefaultUserProfile()+"\\Application data";
+	}
+	return "";
+}
+
+
 //returns path to the default user profile
 function GetDefaultUserProfile(){
 	//Vista(haven't tested),7,2008
@@ -623,6 +643,11 @@ function GetDefaultUserProfile(){
 		return WshShell.ExpandEnvironmentStrings(profpath+"\\"+profdir);
 	}
 	return "";
+}
+
+// get CPU achitecture (x86 or amd64)
+function GetProcessorArchitecture(){
+	return WshShell.RegRead("HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment\\PROCESSOR_ARCHITECTURE");
 }
 
 //get operation system version
